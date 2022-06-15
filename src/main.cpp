@@ -100,7 +100,7 @@ namespace
 		userSettings.SceneIndex = options.SceneIndex;
 
 		userSettings.IsRayTraced = true;
-		userSettings.AccumulateRays = true;
+		userSettings.AccumulateRays = false;
 		userSettings.NumberOfSamples = options.Samples;
 		userSettings.NumberOfBounces = options.Bounces;
 		userSettings.MaxNumberOfSamples = options.MaxSamples;

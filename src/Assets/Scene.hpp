@@ -39,6 +39,7 @@ namespace Assets
 		const Vulkan::Buffer& OffsetsBuffer() const { return *offsetBuffer_; }
 		const Vulkan::Buffer& AabbBuffer() const { return *aabbBuffer_; }
 		const Vulkan::Buffer& ProceduralBuffer() const { return *proceduralBuffer_; }
+		const Vulkan::Buffer& ThreadSwizzleBuffer() const { return *threadSwizzleBuffer_; }
 		const std::vector<VkImageView> TextureImageViews() const { return textureImageViewHandles_; }
 		const std::vector<VkSampler> TextureSamplers() const { return textureSamplerHandles_; }
 
@@ -64,6 +65,9 @@ namespace Assets
 
 		std::unique_ptr<Vulkan::Buffer> proceduralBuffer_;
 		std::unique_ptr<Vulkan::DeviceMemory> proceduralBufferMemory_;
+
+		std::unique_ptr<Vulkan::Buffer> threadSwizzleBuffer_;
+		std::unique_ptr<Vulkan::DeviceMemory> threadSwizzleBufferMemory_;
 
 		std::vector<std::unique_ptr<TextureImage>> textureImages_;
 		std::vector<VkImageView> textureImageViewHandles_;

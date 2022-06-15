@@ -9,6 +9,9 @@
 #include "Utilities/Exception.hpp"
 #include "Vulkan/SingleTimeCommands.hpp"
 
+#include <random>
+#include <algorithm>
+#include <fstream>
 
 namespace Assets {
 
@@ -23,6 +26,40 @@ Scene::Scene(Vulkan::CommandPool& commandPool, std::vector<Model>&& models, std:
 	std::vector<glm::vec4> procedurals;
 	std::vector<VkAabbPositionsKHR> aabbs;
 	std::vector<glm::uvec2> offsets;
+
+	std::vector<uint32_t> threadSwizzle(1280 * 720);
+	// std::vector<uint32_t> threadSwizzle(2560 * 1440);
+	// #define USE_SWIZZLE
+	#ifdef USE_SWIZZLE
+	// std::ifstream file("identity_swizzle.csv");
+	// std::ifstream file("random_swizzle.csv");
+	// std::ifstream file("numrays_swizzle.csv");
+	// std::ifstream file("objects_swizzle.csv");
+	// std::ifstream file("tiled_numrays_swizzle.csv");
+	std::ifstream file("tiled_objects_swizzle.csv");
+	if (file.is_open()) {
+		for (uint32_t thread_id = 0; thread_id < threadSwizzle.size(); thread_id++) {
+			char comma;
+			uint32_t swizzled_thread_id;
+			file >> swizzled_thread_id >> comma;
+			threadSwizzle[thread_id] = swizzled_thread_id;
+		}
+		file.close();
+	} else {
+		fprintf(stderr, "Failed to open swizzle.csv\n");
+	}
+	#else
+	// Identity swizzle
+	for (uint32_t thread_id = 0; thread_id < threadSwizzle.size(); thread_id++) {
+		threadSwizzle[thread_id] = thread_id;
+	}
+	// // Randomize the identity swizzle
+	// std::random_device rd;
+	// std::default_random_engine rng(rd());
+	// rng.seed(0);
+	// std::shuffle(threadSwizzle.begin(), threadSwizzle.end(), rng);
+	#endif
+
 
 	for (const auto& model : models_)
 	{
@@ -69,6 +106,8 @@ Scene::Scene(Vulkan::CommandPool& commandPool, std::vector<Model>&& models, std:
 	Vulkan::BufferUtil::CreateDeviceBuffer(commandPool, "AABBs", flag, aabbs, aabbBuffer_, aabbBufferMemory_);
 	Vulkan::BufferUtil::CreateDeviceBuffer(commandPool, "Procedurals", flag, procedurals, proceduralBuffer_, proceduralBufferMemory_);
 
+	Vulkan::BufferUtil::CreateDeviceBuffer(commandPool, "ThreadSwizzle", flag, threadSwizzle, threadSwizzleBuffer_, threadSwizzleBufferMemory_);
+
 	
 	// Upload all textures
 	textureImages_.reserve(textures_.size());
@@ -88,6 +127,8 @@ Scene::~Scene()
 	textureSamplerHandles_.clear();
 	textureImageViewHandles_.clear();
 	textureImages_.clear();
+	threadSwizzleBuffer_.reset();
+	threadSwizzleBufferMemory_.reset(); // release memory after bound buffer has been destroyed
 	proceduralBuffer_.reset();
 	proceduralBufferMemory_.reset(); // release memory after bound buffer has been destroyed
 	aabbBuffer_.reset();

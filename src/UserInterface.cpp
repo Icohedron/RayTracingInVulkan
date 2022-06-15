@@ -217,7 +217,7 @@ void UserInterface::DrawSettings()
 		ImGui::Text("Profiler");
 		ImGui::Separator();
 		ImGui::Checkbox("Show heatmap", &Settings().ShowHeatmap);
-		ImGui::SliderFloat("Scaling", &Settings().HeatmapScale, 0.10f, 10.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+		ImGui::SliderFloat("Scaling", &Settings().HeatmapScale, 0.10f, 7.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
 		ImGui::NewLine();
 	}
 	ImGui::End();

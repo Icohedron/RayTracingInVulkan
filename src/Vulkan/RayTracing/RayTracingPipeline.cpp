@@ -50,7 +50,10 @@ RayTracingPipeline::RayTracingPipeline(
 		{8, static_cast<uint32_t>(scene.TextureSamplers().size()), VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR},
 
 		// The Procedural buffer.
-		{9, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_INTERSECTION_BIT_KHR}
+		{9, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_INTERSECTION_BIT_KHR},
+
+		// Thread swizzle
+		{10, 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_KHR}
 	};
 
 	descriptorSetManager_.reset(new DescriptorSetManager(device, descriptorBindings, uniformBuffers.size()));
@@ -136,6 +139,12 @@ RayTracingPipeline::RayTracingPipeline(
 
 			descriptorWrites.push_back(descriptorSets.Bind(i, 9, proceduralBufferInfo));
 		}
+
+		// Thread Swizzle buffer
+		VkDescriptorBufferInfo threadSwizzleBufferInfo = {};
+		threadSwizzleBufferInfo.buffer = scene.ThreadSwizzleBuffer().Handle();
+		threadSwizzleBufferInfo.range = VK_WHOLE_SIZE;
+		descriptorWrites.push_back(descriptorSets.Bind(i, 10, threadSwizzleBufferInfo));
 
 		descriptorSets.UpdateDescriptors(i, descriptorWrites);
 	}
